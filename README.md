@@ -58,5 +58,4 @@ EEPROM configuration format, and real-time engine.
 - [`docs/FIRST_PASS_LIMITATIONS.md`](docs/FIRST_PASS_LIMITATIONS.md)
 
 ## License
-
-MIT. See `LICENSE`.
+GPL V3
