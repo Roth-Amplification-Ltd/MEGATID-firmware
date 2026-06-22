@@ -372,7 +372,17 @@ void mt_engine_commit_config(const mt_render_config_t *config)
 
 void mt_engine_trigger_isr(uint8_t trigger_mask)
 {
-    g_trigger_pending |= (uint8_t)(trigger_mask & 0x03u);
+    /*
+     * Keep every narrowing conversion explicit. AVR-GCC promotes uint8_t
+     * operands to int before applying bitwise operators, so the compact
+     * compound-assignment form generated a -Wconversion diagnostic even
+     * though only the two defined trigger bits can reach this variable.
+     */
+    const uint8_t masked_triggers =
+        (uint8_t)(trigger_mask & (uint8_t)0x03u);
+
+    g_trigger_pending =
+        (uint8_t)(g_trigger_pending | masked_triggers);
 }
 
 void mt_engine_external_clock_edge_isr(void)
@@ -468,9 +478,21 @@ void mt_engine_service_tick_isr(void)
     uint8_t output8[MT_OUTPUT_COUNT];
     for (uint8_t i = 0u; i < MT_OUTPUT_COUNT; ++i)
     {
-        output8[i] = (config->outputs_enabled != 0u)
-            ? (uint8_t)(output16[i] >> 8)
-            : 0u;
+        /*
+         * Avoid a conditional expression here. Its usual arithmetic
+         * conversions widen the two result arms before assignment, which
+         * causes noisy -Wconversion and -Wsign-conversion diagnostics on
+         * AVR even though the enabled path is deliberately reduced to the
+         * upper eight bits of the 16-bit sample.
+         */
+        if (config->outputs_enabled != 0u)
+        {
+            output8[i] = (uint8_t)(output16[i] >> 8u);
+        }
+        else
+        {
+            output8[i] = (uint8_t)0u;
+        }
     }
     mt_io_write_pwm_isr(output8);
 
