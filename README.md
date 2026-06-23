@@ -50,6 +50,7 @@ EEPROM configuration format, and real-time engine.
   runtime architecture.
 
 ## Documentation
+![MEGATIDE pinout](img/MEGATIDE-pinout.png)
 
 - [`docs/HARDWARE_INTERFACE.md`](docs/HARDWARE_INTERFACE.md)
 - [`docs/REGISTER_MAP.md`](docs/REGISTER_MAP.md)
